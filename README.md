@@ -1,2 +1,1 @@
-# web-app
-PROMINENCE web app
+# PROMINENCE web app
