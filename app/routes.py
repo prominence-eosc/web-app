@@ -68,8 +68,8 @@ def callback():
             return redirect(url_for('.unauthorised_tryagain'))
         except requests.exceptions.RequestException:
             return redirect(url_for('.unauthorised_tryagain'))
-        if response.status_code != 201:
-            return redirect(url_for('.unauthorised_tryagain'))
+        if response.status_code == 201:
+            return redirect(url_for('.authorised'))
         
         return redirect(url_for('.unauthorised_tryagain'))
 
