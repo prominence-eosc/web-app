@@ -1,12 +1,17 @@
 import os
-from os import environ
 from flask import Flask
-from config import Config
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
 
 app = Flask(__name__, static_url_path='/static')
-app.config.from_object(Config)
+
+# Configuration
+if 'PROMINENCE_WEBUI_CONFIG_FILE' in os.environ:
+    app.config.from_pyfile(os.environ['PROMINENCE_WEBUI_CONFIG_FILE'])
+else:
+    print('ERROR: Environment variable PROMINENCE_WEBUI_CONFIG_FILE has not been defined')
+    exit(1)
+
 app.secret_key = os.urandom(24)
 
 from app import routes
