@@ -35,6 +35,19 @@ def docs_sla():
     """
     return render_template('service-level-agreement.html')
 
+@app.route("/authorise")
+def authorise():
+    """
+    Redirect the user/resource owner to the OAuth provider (i.e. EGI Check-in)
+    using an URL with a few key OAuth parameters.
+    """
+    identity = OAuth2Session(app.config['CLIENT_ID'], scope=app.config['SCOPES'], redirect_uri=app.config['REDIRECT_URI'])
+    authorization_url, state = identity.authorization_url(app.config['AUTHORISATION_BASE_URL'],
+        access_type="offline", prompt="select_account")
+
+    session['oauth_state'] = state
+    return redirect(authorization_url)
+
 @app.route("/callback", methods=["GET"])
 def callback():
     """
@@ -102,18 +115,4 @@ def landing():
     Login page
     """
     return render_template('index.html')
-
-@app.route("/authorise")
-def authorise():
-    """
-    Redirect the user/resource owner to the OAuth provider (i.e. EGI Check-in)
-    using an URL with a few key OAuth parameters.
-    """
-    identity = OAuth2Session(app.config['CLIENT_ID'], scope=app.config['SCOPES'], redirect_uri=app.config['REDIRECT_URI'])
-    authorization_url, state = identity.authorization_url(app.config['AUTHORISATION_BASE_URL'],
-        access_type="offline", prompt="select_account")
-
-    session['oauth_state'] = state
-    return redirect(authorization_url)
-
 
