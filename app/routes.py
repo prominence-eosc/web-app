@@ -43,7 +43,8 @@ def authorise():
     """
     identity = OAuth2Session(app.config['CLIENT_ID'], scope=app.config['SCOPES'], redirect_uri=app.config['REDIRECT_URI'])
     authorization_url, state = identity.authorization_url(app.config['AUTHORISATION_BASE_URL'],
-        access_type="offline", prompt="select_account")
+                                                          access_type="offline",
+                                                          prompt="select_account")
 
     session['oauth_state'] = state
     return redirect(authorization_url)
@@ -56,37 +57,53 @@ def callback():
     in the redirect URL. We will use that to obtain an access token.
     """
     identity = OAuth2Session(app.config['CLIENT_ID'], redirect_uri=app.config['REDIRECT_URI'],
-                           state=session.get('oauth_state'))
+                             state=session.get('oauth_state'))
     token = identity.fetch_token(app.config['TOKEN_URL'], client_secret=app.config['CLIENT_SECRET'],
-                               authorization_response=request.url)
+                                 authorization_response=request.url)
 
     identity = OAuth2Session(app.config['CLIENT_ID'], token=token)
     userinfo = identity.get(app.config['OIDC_BASE_URL'] + 'userinfo').json()
 
-    if 1 == 1:
-        data = {}
-        data['username'] = userinfo['sub']
-        data['refresh_token'] = token['refresh_token']
-        
-        try:
-            response = requests.post(app.config['IMC_URL'],
-                                     timeout=5,
-                                     json=data,
-                                     auth=HTTPBasicAuth(app.config['IMC_USERNAME'], 
-                                                        app.config['IMC_PASSWORD']),
-                                     cert=(app.config['IMC_SSL_CERT'],
-                                           app.config['IMC_SSL_KEY']),
-                                     verify=app.config['IMC_SSL_CERT'])
-        except requests.exceptions.Timeout:
-            return redirect(url_for('.unauthorised_tryagain'))
-        except requests.exceptions.RequestException:
-            return redirect(url_for('.unauthorised_tryagain'))
-        if response.status_code == 201:
-            return redirect(url_for('.authorised'))
-        
-        return redirect(url_for('.unauthorised_tryagain'))
+    allowed = False
+    if app.config['REQUIRED_ENTITLEMENTS'] != '':
+        if 'edu_person_entitlements' in userinfo:
+            for entitlements in app.config['REQUIRED_ENTITLEMENTS']:
+                num_required = len(entitlements)
+                num_have = 0
+                for entitlement in entitlements:
+                    if entitlement in userinfo['edu_person_entitlements']:
+                        num_have += 1
+                if num_required == num_have:
+                    allowed = True
+                    break
+        else:
+            allowed = True
+    else:
+        allowed = True
 
-    return redirect(url_for('.tryagain'))
+    if not allowed:
+        return render_template('error.html', message="You do not have the required entitlements.")
+            
+    data = {}
+    data['username'] = userinfo['sub']
+    data['refresh_token'] = token['refresh_token']
+        
+    try:
+        response = requests.post(app.config['IMC_URL'],
+                                 timeout=5,
+                                 json=data,
+                                 auth=HTTPBasicAuth(app.config['IMC_USERNAME'], 
+                                                    app.config['IMC_PASSWORD']),
+                                 cert=(app.config['IMC_SSL_CERT'],
+                                       app.config['IMC_SSL_KEY']),
+                                 verify=app.config['IMC_SSL_CERT'])
+    except (requests.exceptions.Timeout, requests.exceptions.RequestException):
+        return render_template('error.html', message="Unexpected error, please try again.")
+        
+    if response.status_code == 201:
+        return redirect(url_for('.authorised')
+        
+    return render_template('error.html', message="Unexpected error, please try again.")
 
 @app.route("/home")
 def authorised():
@@ -94,20 +111,6 @@ def authorised():
     Authorised
     """
     return render_template('home.html')
-
-@app.route("/failed")
-def unauthorised_failed():
-    """
-    Authorised
-    """
-    return render_template('failed.html')
-
-@app.route("/tryagain")
-def unauthorised_tryagain():
-    """
-    Authorised
-    """
-    return render_template('tryagain.html')
 
 @app.route("/")
 def landing():
