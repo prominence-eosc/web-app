@@ -101,16 +101,9 @@ def callback():
         return render_template('error.html', message="Unexpected error, please try again.")
         
     if response.status_code == 201:
-        return redirect(url_for('.authorised')
+        return render_template('home.html')
         
     return render_template('error.html', message="Unexpected error, please try again.")
-
-@app.route("/home")
-def authorised():
-    """
-    Authorised
-    """
-    return render_template('home.html')
 
 @app.route("/")
 def landing():
