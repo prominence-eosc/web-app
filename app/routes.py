@@ -35,6 +35,13 @@ def docs_sla():
     """
     return render_template('service-level-agreement.html')
 
+@app.route("/")
+def landing():
+    """
+    Login page
+    """
+    return render_template('index.html')
+
 @app.route("/authorise")
 def authorise():
     """
@@ -104,11 +111,4 @@ def callback():
         return render_template('home.html')
         
     return render_template('error.html', message="Unexpected error, please try again.")
-
-@app.route("/")
-def landing():
-    """
-    Login page
-    """
-    return render_template('index.html')
 
