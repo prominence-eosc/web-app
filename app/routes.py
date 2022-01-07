@@ -7,13 +7,6 @@ from requests_oauthlib import OAuth2Session
 
 from app import app
 
-@app.route('/js/<path:path>')
-def send_js(path):
-    """
-    Serve javascript files
-    """
-    return send_from_directory('js', path)
-
 @app.route('/css/<path:path>')
 def send_css(path):
     """
