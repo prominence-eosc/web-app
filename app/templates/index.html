@@ -1,37 +1,36 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="PROMINENCE: enabling HTC & HPC applications across private, academic and public clouds">
-    <title>PROMINENCE</title>
-    <link href="/static/css/bootstrap.css" rel="stylesheet">
-    <link href="/static/css/signin.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
-  </head>
-  <body>
-    <div class="limiter">
-      <div class="container-login100" style="background-image: url('https://prominence-eosc.github.io/docs/prominence.png');">
-        <div class="wrap-login100 p-l-110 p-r-110 p-t-62 p-b-33">
-          <div class="card bg-light">
-            <div class="card-body">
-              <h1 class="card-title">Prominence</h1>
-              <p class="card-text">This service requires the following permissions for your EGI Check-in account:</p>
-              <ul class="list-group">
-                <li class="list-group-item">log in using your identity</li>
-                <li class="list-group-item">access your info while not being logged in</li>
-                <li class="list-group-item">read your email address</li>
-                <li class="list-group-item">read your basic profile info</li>
-              </ul>
-              <br/>
-              <a href="/authorise" class="btn btn-primary">Authorise</a>
-              <div class="text-center">
-                <p class="mt-5 mb-3"><a href="/terms-of-service">Terms of service</a> | <a href="/service-level-agreement">Service level agreement</a> | <a href="https://prominence.readthedocs.io">Documentation</a></p>
-              </div>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="PROMINENCE: enabling HTC & HPC applications across private, academic and public clouds">
+      <title>PROMINENCE</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      <link href="/static/css/signin.css" rel="stylesheet">
+   </head>
+   <body>
+      <div class="container py-6 h-100">
+         <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-8 col-xl-5">
+               <div class="card shadow-2-strong" style="border-radius: 0.5rem;">
+                  <div class="card-body p-5">
+                     <h5 class="mb-5 text-center">Login to Prominence</h5>
+                     <p class="card-text">This service requires the following permissions for your <a href="https://www.egi.eu/services/check-in/">EGI Check-in</a> account:</p>
+                     <ul class="list-group">
+                        <li class="list-group-item">read your basic profile info</li>
+                        <li class="list-group-item">read your email address</li>
+                     </ul>
+                     <a href="/authorise" class="mt-5 mb-5 btn btn-warning w-100" type="submit">Login</a>
+                     <a href="#" class="card-link text-muted">Terms of use</a>
+                     <a href="#" class="card-link text-muted">Privacy Policy</a>
+                  </div>
+               </div>
             </div>
-          </div>
-        </div>
+         </div>
       </div>
-    </div>
-  </body>
+   </body>
 </html>
+
