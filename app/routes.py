@@ -6,6 +6,7 @@ from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
 
 from app import app
+from app.create_job_token import create_job_token
 
 @app.route('/css/<path:path>')
 def send_css(path):
@@ -41,10 +42,10 @@ def authorise():
     Redirect the user/resource owner to the OAuth provider (i.e. EGI Check-in)
     using an URL with a few key OAuth parameters.
     """
-    identity = OAuth2Session(app.config['CLIENT_ID'], scope=app.config['SCOPES'], redirect_uri=app.config['REDIRECT_URI'])
-    authorization_url, state = identity.authorization_url(app.config['AUTHORISATION_BASE_URL'],
-                                                          access_type="offline",
-                                                          prompt="select_account")
+    identity = OAuth2Session(app.config['CLIENT_ID'],
+                             scope=app.config['SCOPES'],
+                             redirect_uri=app.config['REDIRECT_URI'])
+    authorization_url, state = identity.authorization_url(app.config['AUTHORISATION_BASE_URL'])
 
     session['oauth_state'] = state
     return redirect(authorization_url)
@@ -56,52 +57,32 @@ def callback():
     callback URL. With this redirection comes an authorization code included
     in the redirect URL. We will use that to obtain an access token.
     """
-    identity = OAuth2Session(app.config['CLIENT_ID'], redirect_uri=app.config['REDIRECT_URI'],
+    identity = OAuth2Session(app.config['CLIENT_ID'],
+                             redirect_uri=app.config['REDIRECT_URI'],
                              state=session.get('oauth_state'))
-    token = identity.fetch_token(app.config['TOKEN_URL'], client_secret=app.config['CLIENT_SECRET'],
-                                 authorization_response=request.url)
 
-    identity = OAuth2Session(app.config['CLIENT_ID'], token=token)
-    userinfo = identity.get(app.config['OIDC_BASE_URL'] + 'userinfo').json()
+    # This shouldn't be needed
+    authorization_response = request.url.replace('http:', 'https:')
 
-    allowed = False
-    if app.config['REQUIRED_ENTITLEMENTS'] != '':
-        if 'edu_person_entitlements' in userinfo:
-            for entitlements in app.config['REQUIRED_ENTITLEMENTS']:
-                num_required = len(entitlements)
-                num_have = 0
-                for entitlement in entitlements:
-                    if entitlement in userinfo['edu_person_entitlements']:
-                        num_have += 1
-                if num_required == num_have:
-                    allowed = True
-                    break
-        else:
-            allowed = True
-    else:
-        allowed = True
-
-    if not allowed:
-        return render_template('error.html', message="You do not have the required entitlements.")
-            
-    data = {}
-    data['username'] = userinfo['sub']
-    data['refresh_token'] = token['refresh_token']
-        
+    # Get token
     try:
-        response = requests.post(app.config['IMC_URL'],
-                                 timeout=5,
-                                 json=data,
-                                 auth=HTTPBasicAuth(app.config['IMC_USERNAME'], 
-                                                    app.config['IMC_PASSWORD']),
-                                 cert=(app.config['IMC_SSL_CERT'],
-                                       app.config['IMC_SSL_KEY']),
-                                 verify=app.config['IMC_SSL_CERT'])
-    except (requests.exceptions.Timeout, requests.exceptions.RequestException):
-        return render_template('error.html', message="Unexpected error, please try again.")
-        
-    if response.status_code == 201:
-        return render_template('home.html')
-        
-    return render_template('error.html', message="Unexpected error, please try again.")
+        token = identity.fetch_token(app.config['TOKEN_URL'],
+                                     client_secret=app.config['CLIENT_SECRET'],
+                                     authorization_response=authorization_response)
+    except:
+        return redirect('/')
 
+    try:
+        identity = OAuth2Session(app.config['CLIENT_ID'], token=token)
+        userinfo = identity.get(app.config['OIDC_USER_URL']).json()
+    except:
+        return render_template('error.html',
+                               message="Unexpected error, please try again.")
+
+    username = userinfo[app.config['USERNAME_MAP']]
+    token = create_job_token(username,
+                             app.config['DEFAULT_GROUP'],
+                             app.config['DEFAULT_TOKEN_LIFETIME'],
+                             email=userinfo['email'])
+            
+    return render_template('home.html', token=token)
