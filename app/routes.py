@@ -86,3 +86,37 @@ def callback():
                              email=userinfo['email'])
             
     return render_template('home.html', token=token)
+
+@app.route('/token', methods=['POST'])
+def create_token():
+    """
+    Create an access token from an EGI token
+    """
+    # Get the username
+    access_token = None
+    if 'token' in request.get_json():
+        access_token = request.get_json()['token']
+
+    if not access_token:
+        return jsonify({}), 400
+
+    headers = {'Authorization': 'Bearer %s' % access_token}
+    try:
+        response = requests.get('https://aai.egi.eu/oidc/userinfo', headers=headers)
+    except:
+        return jsonify({}), 400
+
+    username = None
+    if response.status_code == 200:
+        if app.config['USERNAME_MAP'] in response.json():
+            username = response.json()[app.config['USERNAME_MAP']]
+
+    if not username:
+        return jsonify({}), 400
+
+    token = create_job_token(username,
+                             app.config['DEFAULT_GROUP'],
+                             app.config['DEFAULT_TOKEN_LIFETIME'],
+                             email=response.json()['email'])
+
+    return jsonify({'access_token': token}), 201
