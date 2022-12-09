@@ -10,9 +10,16 @@ body {
   height: 100%;
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
-  background: radial-gradient(ellipse at right bottom, #EEB1BF 5%, #d42dab 25%, #4d1d63 50%, #030243 100%);
+  background: #DC2424;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #4A569D, #DC2424);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #4A569D, #DC2424); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
 .card-link {
   text-decoration: none;
+}
+
+.btn-warning {
+  background-color: #f39c12 !important;
+  border-color: #f39c12 !important;
 }

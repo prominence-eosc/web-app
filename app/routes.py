@@ -15,6 +15,13 @@ def send_css(path):
     """
     return send_from_directory('css', path)
 
+@app.route("/privacy-policy")
+def docs_pp():
+    """
+    Privacy policy page
+    """
+    return render_template('privacy-policy.html')
+
 @app.route("/terms-of-service")
 def docs_tos():
     """
@@ -102,7 +109,7 @@ def create_token():
 
     headers = {'Authorization': 'Bearer %s' % access_token}
     try:
-        response = requests.get('https://aai.egi.eu/oidc/userinfo', headers=headers)
+        response = requests.get(app.config['OIDC_USER_URL'], headers=headers)
     except:
         return jsonify({}), 400
 
