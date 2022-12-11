@@ -15,27 +15,6 @@ def send_css(path):
     """
     return send_from_directory('css', path)
 
-@app.route("/privacy-policy")
-def docs_pp():
-    """
-    Privacy policy page
-    """
-    return render_template('privacy-policy.html')
-
-@app.route("/terms-of-service")
-def docs_tos():
-    """
-    Terms of service page
-    """
-    return render_template('terms-of-service.html')
-
-@app.route("/service-level-agreement")
-def docs_sla():
-    """
-    Service level agreement page
-    """
-    return render_template('service-level-agreement.html')
-
 @app.route("/")
 def landing():
     """
